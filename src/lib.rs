@@ -22,7 +22,6 @@
 //!     — enable logging (includes `dep:log`);
 //!     you can show logs with `RUST_LOG=debug`
 
-#![no_std]
 #![deny(clippy::pedantic)]
 #![allow(clippy::doc_link_with_quotes)]
 #![allow(clippy::missing_panics_doc)]

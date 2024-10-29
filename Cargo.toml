@@ -4,6 +4,8 @@ name = "bench"
 path = "benches/bench.rs"
 
 [dependencies]
+base64 = "0.22.1"
+image = "0.24.3"
 log = { optional = true, version = "0.4" }
 serde = { features = ["derive"], optional = true, version = "1" }
 unicode-id = { features = ["no_std"], version = "0.3" }

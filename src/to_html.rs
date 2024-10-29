@@ -19,7 +19,13 @@ use alloc::{
     vec,
     vec::Vec,
 };
+use base64::{
+    alphabet,
+    engine::{self, general_purpose},
+    Engine as _,
+};
 use core::str;
+use std::io::{self, Read};
 
 /// Link, image, or footnote call.
 /// Resource or reference.
@@ -1444,7 +1450,7 @@ fn on_exit_media(context: &mut CompileContext) {
 
     if !is_in_image {
         if media.image {
-            context.push("<img src=\"");
+            context.push("<img src=\"data:image/png;base64, ");
         } else {
             context.push("<a href=\"");
         };
@@ -1468,7 +1474,15 @@ fn on_exit_media(context: &mut CompileContext) {
                     },
                 )
             };
-            context.push(&url);
+            if media.image {
+                let md_path = std::env::var("MDPATH").unwrap();
+                let mut md_path = std::path::PathBuf::from(md_path);
+                md_path.pop();
+                let md_dir = md_path;
+                context.push(&base64_img(&md_dir.join(url)).unwrap_or_default());
+            } else {
+                context.push(&url);
+            }
         }
 
         if media.image {
@@ -1744,4 +1758,24 @@ fn generate_autolink(
     if !context.image_alt_inside && (!is_in_link || !is_gfm_literal) {
         context.push("</a>");
     }
+}
+
+fn base64_img(image_path: &std::path::Path) -> io::Result<String> {
+    // Replace "path/to/image.png" with your image file path
+    // let image_path = "/home/hyper/girl-logseq/assets/image_1711242972685_0.png";
+
+    // Open the image file
+    let mut file = std::fs::File::open(image_path)?;
+
+    // Read the file into a buffer
+    let mut buffer = Vec::new();
+    file.read_to_end(&mut buffer)?;
+
+    // Encode the buffer to a Base64 string
+    let base64_string = general_purpose::STANDARD.encode(&buffer);
+
+    // Print the Base64 string
+    // println!("{}", base64_string);
+
+    Ok(base64_string)
 }
